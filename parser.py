@@ -1,34 +1,30 @@
 import bs4
 import requests
+from urllib.parse import urlparse
 
 # вставить адрес с сайта лостфильм.тв, раздел гид по сериям
-httpAddress = 'https://www.lostfilm.tv/series/Rome/seasons'
+http_address = 'https://www.lostfilm.tv/series/Futurama/seasons'
 
 # название сериала из адреса
-seriesName = ((str(httpAddress)).split('/')[-2])
-if '_' in seriesName:
-    newName = seriesName.split('_')
-    print(*newName)
-else:
-    print(seriesName)
-print()
+url_data = urlparse(http_address)
+series_name = (url_data.path.split('/')[-2])
+series_name = series_name.replace('_', ' ')
 
 # делаю суп с необходимыми данными из страницы
-httpFile = requests.get(httpAddress)
-soup = bs4.BeautifulSoup(httpFile.text, 'html.parser')
-dataSoup = soup.findAll(attrs={"class": "details"})
+http_file = requests.get(http_address)
+soup = bs4.BeautifulSoup(http_file.text, 'html.parser')
+data_soup = soup.findAll(attrs={"class": "details"})
 
 # количество сезонов
-amountSeason = len(dataSoup)
+amount_season = len(data_soup)
 
 # год выхода сезона и количество эпизодов из супа
-i = 0
-for data in dataSoup:
-    strData = str(data)
-    yearSeason = strData[strData.find('Год:'): strData.find('Год:') + 9]
-    episodeAmount = strData[strData.find('Количество вышедших серий:'):
-                            strData.find('Количество вышедших серий:') + 29]
-    print('Сезон:', amountSeason - i)
-    print(yearSeason)
-    print(episodeAmount, end='\n\n')
-    i += 1
+seasons_data = []
+for i, data in enumerate(data_soup):
+    str_data = str(data)
+    year_season = str_data[str_data.find('Год:'): str_data.find('Год:') + 9]
+    episode_amount = str_data[str_data.find('Количество вышедших серий:'):
+                              str_data.find('Количество вышедших серий:') + 29]
+    seasons_data.append(
+        f'Сезон: {amount_season - i}\n{year_season}\n{episode_amount}\n\n')
+print(f'{series_name}\n\n{"".join(seasons_data)}')
