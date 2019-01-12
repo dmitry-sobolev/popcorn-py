@@ -1,46 +1,51 @@
-# регистрация для сайта (пока не требуется)
-# log - WatneyMark
-# pass - GiovanniVirginioSchiaparelli
-
-import re
-import scrapy
-from LostfilmItems import LostfilmItems
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
+from scrapy.selector import Selector
+from datetime import datetime, timedelta
 
 
-class LostfilmSpider(scrapy.Spider):
+class LostfilmSpider(CrawlSpider):
     name = 'lstflm_spider'
     allowed_dominas = ['www.lostfilm.tv']
-    start_urls = ['http://www.lostfilm.tv/series/The_Walking_Dead/seasons']
+    start_urls = ['https://www.lostfilm.tv/new/page_1']
 
-    def parse(self, response):
-        my_selector = scrapy.Selector(response)
-        all_data = my_selector.xpath('/html/body/div[2]/div[2]/div[1]/div[6]')
-        for info in all_data:
-            item = LostfilmItems()
+    # правила перехода по страницам
+    rules = [Rule(LinkExtractor(
+        allow=(r'/new/page_\d{,2}\b',)),
+        follow=True,
+        callback='parse_page'), ]
 
-            # имя сериала из title-ru
+    def parse_page(self, response):
+        my_selector = Selector(response)
+        info4search = my_selector.xpath('//div[@class="body"]')
+
+        for info in info4search:
+            # названия сериалов в одном списке
             series_name = info.xpath(
-                '/html/body/div[2]/div[2]/div[1]/div[1]/h1/div[1]/text()'
-            ).extract()
+                '//div[@class="name-ru"]/text()').extract()
+            # название эпизода и дата выхода эпизода в одном списке
+            episode_info = info.xpath(
+                '//div[@class="alpha"]/text()').extract()
 
-            # все divы с классом details
-            info4search = info.xpath('//div[@class="details"]/text()')
+        # название эпизода и дата выхода в отдельных списках
+        episode_name = []
+        episode_date = []
+        for i in range(len(series_name)):
+            episode_name.append(episode_info[i + i])
+            episode_date.append(episode_info[i + i + 1])
 
-            # годы выхода всех сезонов
-            season_year = re.findall(r'Год: \d{4}', str(info4search))
+        stop_time = datetime.now() - timedelta(35)
 
-            # количество серий во всех сезонах
-            episodes = re.findall(r'Количество вышедших серий: \d+',
-                                  str(info4search))
+        # в series_info попадают сериалы с датой выхода больше, чем stop_time
+        series_info = []
+        for j in range(len(series_name)):
+            date = episode_date[j]
+            if datetime.strptime(date[-10:], '%d.%m.%Y') > stop_time:
+                series_info.append(f'{series_name[0 + j]}. '
+                                   f'{episode_name[0 + j]}. '
+                                   f'{episode_date[0 + j]}.')
 
-            # инфа по каждому сезону в сборе
-            seasons_info = []
-            for i in range(len(season_year)):
-                seasons_info.append(
-                    f'Сезон: {len(season_year) - i}. {season_year[0 + i]}.'
-                    f' {episodes[0 + i]}.')
+        if len(series_info) == 0:
+            raise LostfilmSpider.close(reason='Finish')
 
-            item['series_name'] = series_name
-            item['seasons_info'] = seasons_info
-
-            yield item
+        yield {'series_info': series_info}
