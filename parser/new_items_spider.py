@@ -2,18 +2,19 @@ from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.selector import Selector
 from datetime import datetime, timedelta
+from typing import List
 
 
-class LostfilmSpider(CrawlSpider):
-    name = 'lstflm_spider'
+class LostfilmNewSpider(CrawlSpider):
+    name = 'new_spider'
     allowed_dominas = ['www.lostfilm.tv']
     start_urls = ['https://www.lostfilm.tv/new/page_1']
+    last_page = None
 
     # правила перехода по страницам
     rules = [Rule(LinkExtractor(
         allow=(r'/new/page_\d{,2}\b',)),
-        follow=True,
-        callback='parse_page'), ]
+        follow=True, callback='parse_page', process_links='finish_module'), ]
 
     def parse_page(self, response):
         my_selector = Selector(response)
@@ -34,7 +35,7 @@ class LostfilmSpider(CrawlSpider):
             episode_name.append(episode_info[i + i])
             episode_date.append(episode_info[i + i + 1])
 
-        stop_time = datetime.now() - timedelta(35)
+        stop_time = datetime.now() - timedelta(7)
 
         # в series_info попадают сериалы с датой выхода больше, чем stop_time
         series_info = []
@@ -46,6 +47,15 @@ class LostfilmSpider(CrawlSpider):
                                    f'{episode_date[0 + j]}.')
 
         if len(series_info) == 0:
-            raise LostfilmSpider.close(reason='Finish')
-
+            self.last_page = int(response.meta['link_text'])
         yield {'series_info': series_info}
+
+    def finish_module(self, links: List):
+        if self.last_page is None:
+            return links
+
+        result = []
+        for l in links:
+            if l.text.isalnum() and int(l.text) < self.last_page:
+                result.append(l)
+        return result
