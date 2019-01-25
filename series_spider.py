@@ -1,5 +1,6 @@
 import scrapy
 import json
+from series_pipelines import SeriesPipeline
 
 
 class LostfilmSeriesSpider(scrapy.Spider):
@@ -21,8 +22,9 @@ class LostfilmSeriesSpider(scrapy.Spider):
         results = json.loads(response.body)
         data_series = {}
 
+        series_pipe_line = SeriesPipeline()
         for info in results['data']:
             data_series['title'] = info['title']
             data_series['date'] = info['date']
             data_series['genres'] = info['genres']
-            yield data_series
+            yield series_pipe_line.process_item(data_series)
