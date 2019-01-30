@@ -2,18 +2,21 @@ from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.selector import Selector
 from datetime import datetime, timedelta
+from typing import List
+from new_items_items import NewItemsItems
+from new_items_pipelines import NewItemsPipeline
 
 
-class LostfilmSpider(CrawlSpider):
-    name = 'lstflm_spider'
+class LostfilmNewSpider(CrawlSpider):
+    name = 'new_items_spider'
     allowed_dominas = ['www.lostfilm.tv']
     start_urls = ['https://www.lostfilm.tv/new/page_1']
+    last_page = None
 
     # правила перехода по страницам
     rules = [Rule(LinkExtractor(
         allow=(r'/new/page_\d{,2}\b',)),
-        follow=True,
-        callback='parse_page'), ]
+        follow=True, callback='parse_page', process_links='finish_module'), ]
 
     def parse_page(self, response):
         my_selector = Selector(response)
@@ -34,18 +37,23 @@ class LostfilmSpider(CrawlSpider):
             episode_name.append(episode_info[i + i])
             episode_date.append(episode_info[i + i + 1])
 
-        stop_time = datetime.now() - timedelta(35)
-
-        # в series_info попадают сериалы с датой выхода больше, чем stop_time
-        series_info = []
+        item = NewItemsItems()
+        stop_time = datetime.now() - timedelta(7)
         for j in range(len(series_name)):
             date = episode_date[j]
             if datetime.strptime(date[-10:], '%d.%m.%Y') > stop_time:
-                series_info.append(f'{series_name[0 + j]}. '
-                                   f'{episode_name[0 + j]}. '
-                                   f'{episode_date[0 + j]}.')
+                item['series_name'] = f'{series_name[0 + j]}.'
+                item['episode_name'] = f'{episode_name[0 + j]}.'
+                item['episode_date'] = f'{episode_date[0 + j]}.'
+                new_items_pipe_line = NewItemsPipeline()
+                yield new_items_pipe_line.process_item(item)
 
-        if len(series_info) == 0:
-            raise LostfilmSpider.close(reason='Finish')
+        if len(item) == 0:
+            self.last_page = int(response.meta['link_text'])
 
-        yield {'series_info': series_info}
+    def finish_module(self, links: List):
+        if self.last_page is None:
+            return links
+
+        return [l for l in links if
+                l.text.isalnum() and int(l.text) < self.last_page]
