@@ -117,16 +117,5 @@ dmypy.json
 
 # ===============
 .idea
-popcornpy
 
 old_parser.py
-new_items_items.py
-new_items_models.py
-new_items_pipelines.py
-new_items_spider.py
-Pipfile
-Pipfile.lock
-README.md
-
-__init__.py
-test.py

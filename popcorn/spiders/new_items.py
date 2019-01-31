@@ -3,8 +3,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.selector import Selector
 from datetime import datetime, timedelta
 from typing import List
-from new_items_items import NewItemsItems
-from new_items_pipelines import NewItemsPipeline
+from popcorn.items import NewItemsItem
 
 
 class LostfilmNewSpider(CrawlSpider):
@@ -37,16 +36,15 @@ class LostfilmNewSpider(CrawlSpider):
             episode_name.append(episode_info[i + i])
             episode_date.append(episode_info[i + i + 1])
 
-        item = NewItemsItems()
         stop_time = datetime.now() - timedelta(7)
         for j in range(len(series_name)):
             date = episode_date[j]
             if datetime.strptime(date[-10:], '%d.%m.%Y') > stop_time:
+                item = NewItemsItem()
                 item['series_name'] = f'{series_name[0 + j]}.'
                 item['episode_name'] = f'{episode_name[0 + j]}.'
                 item['episode_date'] = f'{episode_date[0 + j]}.'
-                new_items_pipe_line = NewItemsPipeline()
-                yield new_items_pipe_line.process_item(item)
+                yield item
 
         if len(item) == 0:
             self.last_page = int(response.meta['link_text'])

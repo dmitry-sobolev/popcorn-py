@@ -1,27 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
-from sqlalchemy.engine.url import URL
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
 my_declarative_base = declarative_base()
-
-
-def db_connect():
-    return create_engine(URL(**{
-        'drivername': 'postgres',
-        'host': 'localhost',
-        'port': '5432',
-        'username': '',
-        'password': '',
-        'database': 'scrapy'
-    }))
-
-
-def create_series_table(engine):
-    my_declarative_base.metadata.create_all(engine)
-
-
-def create_new_items_table(engine):
-    my_declarative_base.metadata.create_all(engine)
 
 
 class Series(my_declarative_base):
