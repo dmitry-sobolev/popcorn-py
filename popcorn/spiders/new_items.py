@@ -20,6 +20,7 @@ class LostfilmNewSpider(CrawlSpider):
     def parse_page(self, response):
         my_selector = Selector(response)
         info4search = my_selector.xpath('//div[@class="body"]')
+        item = NewItemsItem()
 
         for info in info4search:
             # названия сериалов в одном списке
@@ -30,20 +31,20 @@ class LostfilmNewSpider(CrawlSpider):
                 '//div[@class="alpha"]/text()').extract()
 
         # название эпизода и дата выхода в отдельных списках
-        episode_name = []
-        episode_date = []
+        episode_name, episode_date = [], []
         for i in range(len(series_name)):
             episode_name.append(episode_info[i + i])
-            episode_date.append(episode_info[i + i + 1])
+            preparation_date = episode_info[i + i + 1]
+            episode_date.append(preparation_date[-10:])
 
         stop_time = datetime.now() - timedelta(7)
         for j in range(len(series_name)):
             date = episode_date[j]
-            if datetime.strptime(date[-10:], '%d.%m.%Y') > stop_time:
-                item = NewItemsItem()
-                item['series_name'] = f'{series_name[0 + j]}.'
-                item['episode_name'] = f'{episode_name[0 + j]}.'
-                item['episode_date'] = f'{episode_date[0 + j]}.'
+            if datetime.strptime(date, '%d.%m.%Y') > stop_time:
+                item['series_name'] = series_name[0 + j]
+                item['episode_name'] = episode_name[0 + j]
+                item['episode_date'] = datetime.strptime(
+                    (episode_date[0 + j]), '%d.%m.%Y')
                 yield item
 
         if len(item) == 0:

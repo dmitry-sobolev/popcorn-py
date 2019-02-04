@@ -90,4 +90,4 @@ ITEM_PIPELINES = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 
-DB_URI = 'postgres://postgres@localhost:5432/postgres'
+DB_URI = 'postgres://irinabystrova@localhost:5432/scrapy'
