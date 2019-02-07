@@ -33,10 +33,9 @@ class LostfilmNewSpider(CrawlSpider):
             episode_date.append(preparation_date[-10:])
 
         engine = create_engine(
-            'postgres://irinabystrova@localhost:5432/scrapy')
-        all_tables = engine.execute(
-            'select * from new_items')
-        if all_tables.rowcount == 0:
+            'postgres://postgres@localhost:5432/postgres')
+        new_items_table = engine.execute('select * from new_items')
+        if new_items_table.rowcount == 0:
             for j in range(len(series_name)):
                 item['series_name'] = series_name[0 + j]
                 item['episode_name'] = episode_name[0 + j]
