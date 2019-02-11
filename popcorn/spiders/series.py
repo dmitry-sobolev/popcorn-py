@@ -2,9 +2,10 @@ import scrapy
 import json
 
 from popcorn.items import SeriesItem
+from .base import BaseMixin
 
 
-class LostfilmSeriesSpider(scrapy.Spider):
+class LostfilmSeriesSpider(BaseMixin, scrapy.Spider):
     name = 'series_spider'
     allowed_dominas = ['www.lostfilm.tv']
     start_urls = [
@@ -13,7 +14,7 @@ class LostfilmSeriesSpider(scrapy.Spider):
     stop_signal = False
 
     def parse(self, response):
-        while self.stop_signal is False:
+        while not self.stop_signal:
             next_urls = (
              'https://www.lostfilm.tv/ajaxik.php?act=serial&type=search&o={}'
             ).format(self.counter)
