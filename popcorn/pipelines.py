@@ -19,6 +19,7 @@ class PopcornPipeline(object):
         my_declarative_base.metadata.create_all(engine)
         session_cls = sessionmaker(bind=engine)
         self.session = session_cls()
+        spider.before_start(self.session)
 
     def close_spider(self, spider):
         self.session.commit()

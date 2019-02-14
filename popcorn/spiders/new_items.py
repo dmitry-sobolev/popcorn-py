@@ -1,52 +1,48 @@
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.selector import Selector
-from datetime import datetime, timedelta
+
+from datetime import datetime
 from typing import List
+
 from popcorn.items import NewItemsItem
+from .base import BaseMixin
 
 
-class LostfilmNewSpider(CrawlSpider):
+class LostfilmNewSpider(BaseMixin, CrawlSpider):
     name = 'new_items_spider'
     allowed_dominas = ['www.lostfilm.tv']
     start_urls = ['https://www.lostfilm.tv/new/page_1']
-    last_page = None
-
-    # правила перехода по страницам
     rules = [Rule(LinkExtractor(
         allow=(r'/new/page_\d{,2}\b',)),
         follow=True, callback='parse_page', process_links='finish_module'), ]
+    last_page = None
+    last_episode_date = None
+
+    def before_start(self, session):
+        self.last_episode_date, = session.execute(
+            'select max(episode_date) from new_items').first()
 
     def parse_page(self, response):
         my_selector = Selector(response)
-        info4search = my_selector.xpath('//div[@class="body"]')
+        info4search = my_selector.css('.row')
+        item = None
 
         for info in info4search:
-            # названия сериалов в одном списке
-            series_name = info.xpath(
-                '//div[@class="name-ru"]/text()').extract()
-            # название эпизода и дата выхода эпизода в одном списке
-            episode_info = info.xpath(
-                '//div[@class="alpha"]/text()').extract()
+            series_name = info.css('.name-ru').xpath('./text()').extract()
+            episode_name, episode_date_words = info.css('.alpha').xpath('./text()').extract()
+            episode_date_words = episode_date_words[-10:]
+            episode_date = datetime.strptime(episode_date_words, '%d.%m.%Y')
 
-        # название эпизода и дата выхода в отдельных списках
-        episode_name = []
-        episode_date = []
-        for i in range(len(series_name)):
-            episode_name.append(episode_info[i + i])
-            episode_date.append(episode_info[i + i + 1])
+            if self.last_episode_date is not None and self.last_episode_date >= episode_date:
+                break
+            item = NewItemsItem()
+            item['series_name'] = series_name
+            item['episode_name'] = episode_name
+            item['episode_date'] = episode_date
+            yield item
 
-        stop_time = datetime.now() - timedelta(7)
-        for j in range(len(series_name)):
-            date = episode_date[j]
-            if datetime.strptime(date[-10:], '%d.%m.%Y') > stop_time:
-                item = NewItemsItem()
-                item['series_name'] = f'{series_name[0 + j]}.'
-                item['episode_name'] = f'{episode_name[0 + j]}.'
-                item['episode_date'] = f'{episode_date[0 + j]}.'
-                yield item
-
-        if len(item) == 0:
+        if item is None:
             self.last_page = int(response.meta['link_text'])
 
     def finish_module(self, links: List):
