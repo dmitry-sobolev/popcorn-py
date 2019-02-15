@@ -1,3 +1,4 @@
+import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.selector import Selector
@@ -18,6 +19,23 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
         follow=True, callback='parse_page', process_links='finish_module'), ]
     last_page = None
     last_episode_date = None
+    cookies = None
+
+    def start_requests(self):
+        return [scrapy.FormRequest('http://www.lostfilm.tv/ajaxik.php',
+                                   formdata={'act': 'users',
+                                             'type': 'login',
+                                             'mail': 'watney93@mail.ru',
+                                             'pass': 'GiovanniVirginioSchiaparelli'},
+                                   callback=self.logged_in)]
+
+    def logged_in(self, response):
+        if response.text == '{"name":"WatneyMark","success":true,"result":"ok"}':
+            return response.follow(self.start_urls[0], callback=self.parse_page, cookies=self.cookies)
+        elif response.text == '{"need_captcha":true,"result":"ok"}':
+            '''Какое поведение если need_captcha?'''
+        else:
+            '''Какое поведение если error?'''
 
     def before_start(self, session):
         self.last_episode_date, = session.execute(
