@@ -5,6 +5,7 @@ from scrapy.selector import Selector
 
 from datetime import datetime
 from typing import List
+from http.cookies import SimpleCookie
 
 from popcorn.items import NewItemsItem
 from .base import BaseMixin
@@ -31,7 +32,16 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
 
     def logged_in(self, response):
         if response.text == '{"name":"WatneyMark","success":true,"result":"ok"}':
-            return response.follow(self.start_urls[0], callback=self.parse_page, cookies=self.cookies)
+            rawdata = str(response.headers['Set-Cookie'])
+            rawdata = rawdata[2:-4]
+            cookie = SimpleCookie()
+            cookie.load(rawdata)
+            self.cookies = {}
+            for key, morsel in cookie.items():
+                self.cookies[key] = morsel.value
+            return response.follow(self.start_urls[0],
+                                   callback=self.parse_page,
+                                   cookies=self.cookies)
         elif response.text == '{"need_captcha":true,"result":"ok"}':
             '''Какое поведение если need_captcha?'''
         else:
