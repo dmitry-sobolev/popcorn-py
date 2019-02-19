@@ -6,6 +6,7 @@ from scrapy.selector import Selector
 from datetime import datetime
 from typing import List
 from http.cookies import SimpleCookie
+import json
 
 from popcorn.items import NewItemsItem
 from .base import BaseMixin
@@ -14,7 +15,6 @@ from .base import BaseMixin
 class LostfilmNewSpider(BaseMixin, CrawlSpider):
     name = 'new_items_spider'
     allowed_dominas = ['www.lostfilm.tv']
-    start_urls = ['https://www.lostfilm.tv/new/page_1']
     rules = [Rule(LinkExtractor(
         allow=(r'/new/page_\d{,2}\b',)),
         follow=True, callback='parse_page', process_links='finish_module'), ]
@@ -24,28 +24,22 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
 
     def start_requests(self):
         return [scrapy.FormRequest('http://www.lostfilm.tv/ajaxik.php',
-                                   formdata={'act': 'users',
-                                             'type': 'login',
-                                             'mail': 'watney93@mail.ru',
-                                             'pass': 'GiovanniVirginioSchiaparelli'},
+                                   formdata=self.settings.get('LOG_IN'),
                                    callback=self.logged_in)]
 
     def logged_in(self, response):
-        if response.text == '{"name":"WatneyMark","success":true,"result":"ok"}':
-            rawdata = str(response.headers['Set-Cookie'])
-            rawdata = rawdata[2:-4]
-            cookie = SimpleCookie()
-            cookie.load(rawdata)
-            self.cookies = {}
-            for key, morsel in cookie.items():
-                self.cookies[key] = morsel.value
-            return response.follow(self.start_urls[0],
-                                   callback=self.parse_page,
-                                   cookies=self.cookies)
-        elif response.text == '{"need_captcha":true,"result":"ok"}':
-            '''Какое поведение если need_captcha?'''
-        else:
-            '''Какое поведение если error?'''
+        site_ans = json.loads(response.text)
+        try:
+            if site_ans['success'] is True:
+                raw_data = str(response.headers['Set-Cookie'], encoding='ascii')
+                cookie = SimpleCookie()
+                cookie.load(raw_data)
+                self.cookies = cookie
+                return response.follow('https://www.lostfilm.tv/new/page_0',
+                                       callback=self.parse,
+                                       cookies=self.cookies)
+        except KeyError:
+            print('Login failed! Need captcha or unknown error.')
 
     def before_start(self, session):
         self.last_episode_date, = session.execute(
@@ -79,3 +73,8 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
 
         return [l for l in links if
                 l.text.isalnum() and int(l.text) < self.last_page]
+
+    def _build_request(self, rule, link):
+        r = super(LostfilmNewSpider, self)._build_request(rule, link)
+        r.cookies = self.cookies
+        return r
