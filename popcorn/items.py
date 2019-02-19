@@ -19,6 +19,7 @@ class NewItemsItem(ModelMixin, scrapy.Item):
     series_name = scrapy.Field()
     episode_name = scrapy.Field()
     episode_date = scrapy.Field()
+    download_link = scrapy.Field()
 
     def model(self):
         return NewItems(**self)

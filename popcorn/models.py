@@ -20,3 +20,4 @@ class NewItems(my_declarative_base):
     series_name = Column('series_name', String)
     episode_name = Column('episode_name', String)
     episode_date = Column('episode_date', DateTime)
+    download_link = Column('download_link', String)

@@ -51,6 +51,8 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
         item = None
 
         for info in info4search:
+            series_code = info.css('.haveseen-btn').attrib['data-episode']
+            download_link = 'http://lostfilm.tv/v_search.php?a=' + series_code
             series_name = info.css('.name-ru').xpath('./text()').extract()
             episode_name, episode_date_words = info.css('.alpha').xpath('./text()').extract()
             episode_date_words = episode_date_words[-10:]
@@ -62,6 +64,7 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
             item['series_name'] = series_name
             item['episode_name'] = episode_name
             item['episode_date'] = episode_date
+            item['download_link'] = download_link
             yield item
 
         if item is None:
