@@ -117,5 +117,5 @@ dmypy.json
 
 # ===============
 .idea
-
+.crontab
 old_parser.py

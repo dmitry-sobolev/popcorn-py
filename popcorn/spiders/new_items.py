@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import List
 from http.cookies import SimpleCookie
 import json
+import requests
 
 from popcorn.items import NewItemsItem
 from .base import BaseMixin
@@ -51,8 +52,16 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
         item = None
 
         for info in info4search:
+
             series_code = info.css('.haveseen-btn').attrib['data-episode']
-            download_link = 'http://lostfilm.tv/v_search.php?a=' + series_code
+            page_link = 'http://lostfilm.tv/v_search.php?a=' + series_code
+            cookies_for_page = {}
+            for key, morsel in self.cookies.items():
+                cookies_for_page[key] = morsel.value
+            page_with_download_link = requests.post(page_link, cookies=cookies_for_page)
+            page_text = page_with_download_link.text
+            download_link = page_text[page_text.find('<a href="'):page_text.rfind('">эту ссылку</a>')][9:]
+
             series_name = info.css('.name-ru').xpath('./text()').extract()
             episode_name, episode_date_words = info.css('.alpha').xpath('./text()').extract()
             episode_date_words = episode_date_words[-10:]
