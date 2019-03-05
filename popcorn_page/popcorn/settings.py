@@ -11,8 +11,8 @@
 
 BOT_NAME = 'popcorn'
 
-SPIDER_MODULES = ['popcorn.spiders']
-NEWSPIDER_MODULE = 'popcorn.spiders'
+SPIDER_MODULES = ['popcorn_page.popcorn.spiders']
+NEWSPIDER_MODULE = 'popcorn_page.popcorn.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -65,7 +65,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'popcorn.pipelines.PopcornPipeline': 300,
+   'popcorn_page.popcorn.pipelines.PopcornPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

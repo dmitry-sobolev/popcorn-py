@@ -8,7 +8,7 @@ from typing import List
 from http.cookies import SimpleCookie
 import json
 
-from popcorn.items import NewItemsItem
+from popcorn_page.popcorn.items import NewItemsItem
 from .base import BaseMixin
 
 

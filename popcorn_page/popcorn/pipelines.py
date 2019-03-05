@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from popcorn.items import ModelMixin
-from popcorn.models import my_declarative_base
+from popcorn_page.popcorn.items import ModelMixin
+from popcorn_page.popcorn.models import my_declarative_base
 
 
 class PopcornPipeline(object):

@@ -1,9 +1,9 @@
 import abc
 
-import scrapy
 from sqlalchemy.dialects.postgresql import insert
 
-from popcorn.models import NewItems, Series
+from popcorn_page.popcorn.models import NewItems, Series
+from scrapy_djangoitem import DjangoItem
 
 
 class ModelMixin(metaclass=abc.ABCMeta):
@@ -15,21 +15,15 @@ class ModelMixin(metaclass=abc.ABCMeta):
         session.add(self.model())
 
 
-class NewItemsItem(ModelMixin, scrapy.Item):
-    series_name = scrapy.Field()
-    episode_name = scrapy.Field()
-    episode_date = scrapy.Field()
-    download_link = scrapy.Field()
+class NewItemsItem(ModelMixin, DjangoItem):
+    django_model = NewItems
 
     def model(self):
         return NewItems(**self)
 
 
-class SeriesItem(ModelMixin, scrapy.Item):
-    id = scrapy.Field()
-    title = scrapy.Field()
-    date = scrapy.Field()
-    genres = scrapy.Field()
+class SeriesItem(ModelMixin, DjangoItem):
+    django_model = Series
 
     def model(self):
         return Series(**self)
