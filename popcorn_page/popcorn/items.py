@@ -2,7 +2,7 @@ import abc
 
 from sqlalchemy.dialects.postgresql import insert
 
-from popcorn_page.popcorn.models import NewItems, Series
+from scrapy_app.models import NewItems, Series
 from scrapy_djangoitem import DjangoItem
 
 

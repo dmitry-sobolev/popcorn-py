@@ -11,8 +11,17 @@
 
 BOT_NAME = 'popcorn'
 
-SPIDER_MODULES = ['popcorn_page.popcorn.spiders']
-NEWSPIDER_MODULE = 'popcorn_page.popcorn.spiders'
+SPIDER_MODULES = ['popcorn.spiders']
+NEWSPIDER_MODULE = 'popcorn.spiders'
+
+import os
+import sys
+
+#DJANGO INTEGRATION
+sys.path.append(os.path.dirname(os.path.abspath('.')))
+os.environ['DJANGO_SETTINGS_MODULE'] = 'popcorn_page.settings'
+import django
+django.setup()
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -65,7 +74,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'popcorn_page.popcorn.pipelines.PopcornPipeline': 300,
+   'popcorn.pipelines.PopcornPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

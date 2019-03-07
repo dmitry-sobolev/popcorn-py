@@ -1,7 +1,7 @@
 import scrapy
 import json
 
-from popcorn_page.popcorn.items import SeriesItem
+from popcorn.items import SeriesItem
 from .base import BaseMixin
 
 

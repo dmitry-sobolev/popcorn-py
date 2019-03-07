@@ -8,7 +8,7 @@ from typing import List
 from http.cookies import SimpleCookie
 import json
 
-from popcorn_page.popcorn.items import NewItemsItem
+from popcorn.items import NewItemsItem
 from .base import BaseMixin
 
 
@@ -52,7 +52,7 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
 
     def before_start(self, session):
         self.last_episode_date, = session.execute(
-            'select max(episode_date) from new_items').first()
+            'select max(episode_date) from scrapy_app_newitems').first()
 
     def parse_page(self, response):
         my_selector = Selector(response)
