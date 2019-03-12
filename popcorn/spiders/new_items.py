@@ -9,6 +9,7 @@ from http.cookies import SimpleCookie
 import json
 
 from popcorn.items import NewItemsItem
+from scrapy_app.models import NewItems
 from .base import BaseMixin
 
 
@@ -50,9 +51,9 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
                                    callback=self.parse,
                                    cookies=self.cookies)
 
-    def before_start(self, session):
-        self.last_episode_date, = session.execute(
-            'select max(episode_date) from scrapy_app_newitems').first()
+    def before_start(self):
+        latest = NewItems.objects.order_by('-episode_date').first()
+        self.last_episode_date = latest.episode_date
 
     def parse_page(self, response):
         my_selector = Selector(response)

@@ -19,7 +19,7 @@ import sys
 
 #DJANGO INTEGRATION
 sys.path.append(os.path.dirname(os.path.abspath('.')))
-os.environ['DJANGO_SETTINGS_MODULE'] = 'popcorn_page.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'popcorn_site.settings'
 import django
 django.setup()
 

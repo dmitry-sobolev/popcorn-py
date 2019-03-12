@@ -1,7 +1,4 @@
 from django.db import models
-from sqlalchemy.ext.declarative import declarative_base
-
-my_declarative_base = declarative_base()
 
 
 class Series(models.Model):

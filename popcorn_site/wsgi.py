@@ -1,5 +1,5 @@
 """
-WSGI config for popcorn_page project.
+WSGI config for popcorn_site project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'popcorn_page.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'popcorn_site.settings')
 
 application = get_wsgi_application()
