@@ -17,9 +17,3 @@ class SeriesItem(DjangoItem):
 
     def model(self):
         return Series(**self)
-
-    # def save_or_update(self, pipeline):
-    #     if True:
-    #         pipeline.for_save(self.save(commit=False))
-    #     else:
-    #         pipeline.for_update(self.save(commit=False))

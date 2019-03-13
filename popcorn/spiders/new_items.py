@@ -53,7 +53,8 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
 
     def before_start(self):
         latest = NewItems.objects.order_by('-episode_date').first()
-        self.last_episode_date = latest.episode_date
+        if latest is not None:
+            self.last_episode_date = latest.episode_date
 
     def parse_page(self, response):
         my_selector = Selector(response)
@@ -75,7 +76,7 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
             if self.last_episode_date is not None and self.last_episode_date >= episode_date:
                 break
             item = NewItemsItem()
-            item['series_name'] = series_name
+            item['series_name'] = series_name[0]
             item['episode_name'] = episode_name
             item['episode_date'] = episode_date
 

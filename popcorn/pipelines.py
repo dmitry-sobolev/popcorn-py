@@ -19,4 +19,5 @@ class PopcornPipeline(object):
 
     def process_item(self, item: DjangoItem, spider):
         item.save()
+        # self.for_save.append(item)
         return item
