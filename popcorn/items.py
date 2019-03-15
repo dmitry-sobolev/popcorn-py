@@ -8,9 +8,6 @@ class NewItemsItem(DjangoItem):
     def model(self):
         return NewItems(**self)
 
-    # def save(self, commit=False):
-    #     return super().save(commit)
-
 
 class SeriesItem(DjangoItem):
     django_model = Series

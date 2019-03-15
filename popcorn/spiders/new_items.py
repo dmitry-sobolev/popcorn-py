@@ -9,7 +9,7 @@ from http.cookies import SimpleCookie
 import json
 
 from popcorn.items import NewItemsItem
-from scrapy_app.models import NewItems
+from scrapy_app.models import NewItems, Series
 from .base import BaseMixin
 
 
@@ -79,6 +79,7 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
             item['series_name'] = series_name[0]
             item['episode_name'] = episode_name
             item['episode_date'] = episode_date
+            item['series'] = Series.objects.get(title=series_name[0])
 
             page_request = scrapy.Request(page_link, cookies=cookies_for_page,
                                           callback=self.parse_download_link)
