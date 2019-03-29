@@ -79,7 +79,10 @@ class LostfilmNewSpider(BaseMixin, CrawlSpider):
             item['series_name'] = series_name[0]
             item['episode_name'] = episode_name
             item['episode_date'] = episode_date
-            item['series'] = Series.objects.get(title=series_name[0])
+            try:
+                item['series'] = Series.objects.get(title=series_name[0])
+            except Series.DoesNotExist:
+                pass
 
             page_request = scrapy.Request(page_link, cookies=cookies_for_page,
                                           callback=self.parse_download_link)
