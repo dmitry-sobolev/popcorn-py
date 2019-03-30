@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 class Series(models.Model):
@@ -9,6 +10,12 @@ class Series(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('series-details', args=[str(self.id)])
+
+    class Meta:
+        ordering = ['title']
 
 
 class NewItems(models.Model):

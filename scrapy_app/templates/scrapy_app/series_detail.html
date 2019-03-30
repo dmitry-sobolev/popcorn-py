@@ -1,0 +1,21 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}<title>{{ series.title }}</title>{% endblock %}
+
+{% block content %}
+    <h1>{{ series.title }}</h1>
+    <p><strong>Жанр: </strong>{{ series.genres }}</p>
+    <p><strong>Год выхода: </strong>{{ series.date }}</p>
+
+    <div style="margin-left:20px: margin-top:20px">
+        <h2>Список серий</h2>
+            {% for series in series.newitems_set.all %}
+                <hr>
+                <p> {{ series.episode_name }}</p>
+                <p> Серия вышла {{ series.episode_date }}</p>
+                <a href="{{ series.download_link }}">Скачать торрент</a>
+
+
+            {% endfor %}
+    </div>
+{% endblock %}

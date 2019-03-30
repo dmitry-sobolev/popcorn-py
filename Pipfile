@@ -12,6 +12,7 @@ psycopg2-binary = "*"
 requests = "*"
 django = "*"
 scrapy-djangoitem = "*"
+dj-database-url = "*"
 
 [dev-packages]
 

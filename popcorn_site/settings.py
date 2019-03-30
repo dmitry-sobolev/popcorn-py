@@ -73,17 +73,10 @@ WSGI_APPLICATION = 'popcorn_site.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+import dj_database_url
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'scrapy',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
+conf_string = 'postgres://localhost:5432/scrapy'
+DATABASES = {'default': dj_database_url.config(default=conf_string)}
 
 
 # Password validation
