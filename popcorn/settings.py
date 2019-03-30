@@ -14,6 +14,15 @@ BOT_NAME = 'popcorn'
 SPIDER_MODULES = ['popcorn.spiders']
 NEWSPIDER_MODULE = 'popcorn.spiders'
 
+import os
+import sys
+
+#DJANGO INTEGRATION
+sys.path.append(os.path.dirname(os.path.abspath('.')))
+os.environ['DJANGO_SETTINGS_MODULE'] = 'popcorn_site.settings'
+import django
+django.setup()
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'popcorn (+http://www.yourdomain.com)'
@@ -90,7 +99,7 @@ ITEM_PIPELINES = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 
-DB_URI = 'postgres://irinabystrova@localhost:5432/scrapy'
+DB_URI = 'postgres://localhost:5432/scrapy'
 
 LOG_IN = {'act': 'users', 'type': 'login', 'mail': 'watney93@mail.ru',
           'pass': 'GiovanniVirginioSchiaparelli'}
